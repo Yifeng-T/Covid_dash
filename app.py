@@ -5,13 +5,38 @@ from dash import Dash, dcc, html, Input, Output
 import dash_bootstrap_components as dbc
 import numpy as np
 
+
+
+import flask
+import glob
+import os
+import PIL
+from PIL import Image
+
 xgb_predic_data = pd.read_csv("XGB_Validation.csv")
 
 States = list(set(xgb_predic_data["State"]))
 
+mod = {"Model": ["XGB", "RF"]}
+model = pd.DataFrame(mod)
 
+num = {"num":[1,2,3,4,5,6,7]}
+num = pd.DataFrame(num)
 
+status = {"status": ["Death", "Case"]}
+Status = pd.DataFrame(status)
+
+#==readin local pic
+listofima = [f for f in glob.glob("*.png")]
+static_image_route = '/static/'
+print(len(listofima))
 #=====================
+#readin rmse
+
+rmse = pd.read_csv("RMSE_f.csv")
+
+
+#=====
 external_stylesheets = [dbc.themes.LUX]
 
 #define the dash board app:
@@ -54,6 +79,42 @@ app.layout = html.Div([
                     , className="mb-4")
         ]),
         html.Hr(),
+        
+        html.Hr(),
+
+        dbc.Row([ #subtitle
+        dbc.Col(html.H5(children='Feature Importance', className="text-center"),
+                className="mt-4")]),
+        #two drop downs here: one is school, another one is majors
+        
+        html.Div(children=[html.Div(children="Select Death/Case", className="menu-title"),
+                                    dcc.Dropdown(id='select_status', value='Case', multi=False, 
+                                    options=[{'label': x, 'value': x} for x in Status["status"].unique()])]),
+        html.Div(children=[html.Div(children="Select Model Number", className="menu-title"),
+                                    dcc.Dropdown(id='select_num', value='2', multi=False, 
+                                    options=[{'label': x, 'value': x} for x in num["num"].unique()])]),
+        html.Div(children=[html.Div(children="Select Model", className="menu-title"),
+                                    dcc.Dropdown(id='select_model', value='XGB', multi=False, 
+                                    options=[{'label': x, 'value': x} for x in model["Model"].unique()])]),
+        
+        html.Img(id='f1'),
+        html.Hr(),
+        dbc.Row([ #subtitle
+        dbc.Col(html.H5(children='XGBOOST and RandomForest Root Mean Square Error Comparision', className="text-center"),
+                className="mt-4")]),
+        html.Div(children=[html.Div(children="Select States", className="menu-title"),
+                                    dcc.Dropdown(id='rmse', value='Case', multi=False, 
+                                    options=[{'label': x, 'value': x} for x in rmse["Status"].unique()])]),
+        dcc.Graph(id='rmse_graph',
+                            figure={}, clickData=None, hoverData=None,
+                            config={'staticPlot': False,     
+                                    'scrollZoom': True,      
+                                    'doubleClick': 'reset',  
+                                    'showTips': False,       
+                                    'displayModeBar': True,  
+                                    'watermark': True,}, 
+                            className='six columns'),
+        html.Hr(),
         dbc.Row([ #subtitle
         dbc.Col(html.H5(children='XGBoost Daily Cases and Daily Death Prediction By states', className="text-center"),
                 className="mt-4")]),
@@ -81,9 +142,8 @@ app.layout = html.Div([
                                     'watermark': True,}, 
                             className='six columns'),
         html.Hr()
-
-
-    ])
+        
+        ])
 ])
     
 
@@ -103,9 +163,35 @@ def draw(state_chosen):
     
     return fig1, fig2
 
+@app.callback(
+    dash.dependencies.Output('f1', 'src'),
+    [dash.dependencies.Input('select_status', 'value'),
+     dash.dependencies.Input('select_num', 'value'),
+     dash.dependencies.Input('select_model', 'value')
+     ])
+def update_image_src(status, num, model):
+    name1 = str(model)+str(status)+str(num)+".png"
+    #name2 = "RF"+str(status)+str(num)+".png"
+    #print(name1)
+    size = 750, 750
+    fig1 = PIL.Image.open(name1)
+    fig1.thumbnail(size, Image.ANTIALIAS)
+    return  fig1
+
+@app.callback(Output(component_id='rmse_graph', component_property='figure'),
+              [Input(component_id='rmse', component_property='value')])
+
+def draw(state):
+    new = rmse[rmse["Status"] == state]
+    fig = px.bar(new, x="Model", y="RMSE", 
+                 color="Method", barmode="group")
+    fig.update_layout(title_text='XGBoost RMSE V.S. RandomForest RMSE over 7 Models')
+    return fig
+
+
+
 
 
 # to run the app
 if __name__=='__main__':
     app.run_server(debug=True)
-
