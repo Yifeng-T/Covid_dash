@@ -4,16 +4,16 @@ import plotly.express as px
 from dash import Dash, dcc, html, Input, Output
 import dash_bootstrap_components as dbc
 import numpy as np
-
-
-
 import flask
 import glob
 import os
 import PIL
 from PIL import Image
 
-xgb_predic_data = pd.read_csv("XGB_Validation.csv")
+
+
+finaldata = pd.read_csv("final_data.csv")
+xgb_predic_data = pd.read_csv("RF_Validation.csv")
 
 States = list(set(xgb_predic_data["State"]))
 
@@ -26,6 +26,8 @@ num = pd.DataFrame(num)
 status = {"status": ["Death", "Case"]}
 Status = pd.DataFrame(status)
 
+typppe = {"t": ["Daily_Death", "Daily_Case"]}
+typppe = pd.DataFrame(typppe)
 #==readin local pic
 listofima = [f for f in glob.glob("*.png")]
 static_image_route = '/static/'
@@ -53,7 +55,7 @@ app.layout = html.Div([
             dbc.Col(html.H6(children='Project made by Yifeng Tang, Caihan Wang, and Yuxuan Chen'), className="mb-4")
         ]),
         dbc.Row([
-            dbc.Col(html.H6(children='Could access resources at: our git link https://github.com/Yifeng-T/Biostat823_HomeWork/tree/main/HW4'), className="mb-4")
+            dbc.Col(html.H6(children='Could access resources at: our git link https://github.com/Caihanwang/BIOS823_Final'), className="mb-4")
         ]),
         html.Hr(),
 
@@ -78,8 +80,37 @@ app.layout = html.Div([
                                      className="text-center text-light bg-dark"), body=True, color="dark")
                     , className="mb-4")
         ]),
-        html.Hr(),
+
+        dbc.Row([ #subtitle
+        dbc.Col(html.H5(children='past four months dayly data', className="text-center"),
+                className="mt-4")]),
+        #two drop downs here: one is school, another one is majors
         
+        html.Div(children=[html.Div(children="Select States", className="menu-title"),
+                                    dcc.Dropdown(id='eda_state',  value = 'Alabama',multi=False, 
+                                    options=[{'label': x, 'value': x} for x in finaldata["State"].unique()])]),
+        html.Div(children=[html.Div(children="Select Daily Data Type", className="menu-title"),
+                                    dcc.Dropdown(id='eda_data', value='Daily_Case', multi=False, 
+                                    options=[{'label': x, 'value': x} for x in typppe["t"].unique()])]),
+        
+        dcc.Graph(id='daily',
+                            figure={}, clickData=None, hoverData=None,
+                            config={'staticPlot': False,     
+                                    'scrollZoom': True,      
+                                    'doubleClick': 'reset',  
+                                    'showTips': False,       
+                                    'displayModeBar': True,  
+                                    'watermark': True,}, 
+                            className='six columns'),
+        
+
+
+        html.Hr(),
+        dbc.Row([
+            dbc.Col(dbc.Card(html.H3(children='XGBoost and randomforest comparison',
+                                     className="text-center text-light bg-dark"), body=True, color="dark")
+                    , className="mb-4")
+        ]),
         html.Hr(),
 
         dbc.Row([ #subtitle
@@ -115,6 +146,12 @@ app.layout = html.Div([
                                     'watermark': True,}, 
                             className='six columns'),
         html.Hr(),
+        dbc.Row([
+            dbc.Col(dbc.Card(html.H3(children='7 days Random forest prediction result',
+                                     className="text-center text-light bg-dark"), body=True, color="dark")
+                    , className="mb-4")
+        ]),
+
         dbc.Row([ #subtitle
         dbc.Col(html.H5(children='XGBoost Daily Cases and Daily Death Prediction By states', className="text-center"),
                 className="mt-4")]),
@@ -188,6 +225,14 @@ def draw(state):
     fig.update_layout(title_text='XGBoost RMSE V.S. RandomForest RMSE over 7 Models')
     return fig
 
+@app.callback(Output(component_id='daily', component_property='figure'),
+              [Input(component_id='eda_state', component_property='value'),
+               Input(component_id='eda_data', component_property='value')])
+
+def draw(state, data):
+    df = finaldata[finaldata["State"] == state]
+    fig = px.line(df, x="Date", y=data, title=f'{data} in {state} in the Past 4 Months')
+    return fig
 
 
 
