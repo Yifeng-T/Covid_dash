@@ -6,3 +6,4 @@ plotly==5.3.1
 dash_bootstrap_components==0.13.1
 Flask==2.0.2
 pillow==8.1.0
+os
