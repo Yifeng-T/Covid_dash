@@ -31,7 +31,6 @@ typppe = pd.DataFrame(typppe)
 #==readin local pic
 listofima = [f for f in glob.glob("*.png")]
 static_image_route = '/static/'
-print(len(listofima))
 #=====================
 #readin rmse
 
@@ -62,13 +61,13 @@ app.layout = html.Div([
         dbc.Row([
             dbc.Col(html.H3(children='Background Introduction:'), className="mb-5")
         ]),
-        html.H2(children='  COVID-19 (coronavirus disease 2019) is a disease caused by a virus named SARS-CoV-2, which has put health systems under tremendous strain. The function of this program is to predict the following 7-days covid daily new cases and new death based on the previous 7 days data.',
+        html.H2(children='  COVID-19 (coronavirus disease 2019) is a disease caused by a virus named SARS-CoV-2, which has put health systems under tremendous strain.',
             style = {'font-family':'Helvetica',
                      'font-size': '15px',
                      'width':'100%',
                      'display': 'inline-block'}
                      ),
-        html.H2(children='  We intended to use the Random Forest and XGBoost methods to predict the outcome variables(daily cases and daily death). The independent variables we used are listed in the following table: for the strategy and explanations of the variables, please refer to our report file ()',
+        html.H2(children='In this project, our goal was to predict the daily number of Covid-19 confirmed cases and deaths over a week. Compared to XGBoost, Random Forest model was our final choice considering it had lower RMSE. In this way, our final outputs were 14 Random Forest models, 7 for daily deaths forecast of future 7 days respectively and 7 for daily confirmed cases forecast of future 7 days. In addition, we validated our models by forecasting the daily death and daily cases from Nov 15 2021 to Nov 21 2021 and got acceptable results',
             style = {'font-family':'Helvetica',
                      'font-size': '15px',
                      'width':'100%',
@@ -84,7 +83,6 @@ app.layout = html.Div([
         dbc.Row([ #subtitle
         dbc.Col(html.H5(children='past four months dayly data', className="text-center"),
                 className="mt-4")]),
-        #two drop downs here: one is school, another one is majors
         
         html.Div(children=[html.Div(children="Select States", className="menu-title"),
                                     dcc.Dropdown(id='eda_state',  value = 'Alabama',multi=False, 
@@ -102,8 +100,6 @@ app.layout = html.Div([
                                     'displayModeBar': True,  
                                     'watermark': True,}, 
                             className='six columns'),
-        
-
 
         html.Hr(),
         dbc.Row([
@@ -234,6 +230,8 @@ def draw(state, data):
     fig = px.line(df, x="Date", y=data, title=f'{data} in {state} in the Past 4 Months')
     return fig
 
+
+    
 
 
 
