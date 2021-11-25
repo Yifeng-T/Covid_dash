@@ -149,7 +149,7 @@ app.layout = html.Div([
         ]),
 
         dbc.Row([ #subtitle
-        dbc.Col(html.H5(children='XGBoost Daily Cases and Daily Death Prediction By states', className="text-center"),
+        dbc.Col(html.H5(children='Random forest Daily Cases and Daily Death Prediction By states', className="text-center"),
                 className="mt-4")]),
         #two drop downs here: one is school, another one is majors
         html.Div(children=[html.Div(children="Select States", className="menu-title"),
