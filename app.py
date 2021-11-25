@@ -54,7 +54,7 @@ app.layout = html.Div([
             dbc.Col(html.H6(children='Project made by Yifeng Tang, Caihan Wang, and Yuxuan Chen'), className="mb-4")
         ]),
         dbc.Row([
-            dbc.Col(html.H6(children='Could access resources at: our git link https://github.com/Caihanwang/BIOS823_Final'), className="mb-4")
+            dbc.Col(html.H6(children='Could access resources at our git link https://github.com/Caihanwang/BIOS823_Final'), className="mb-4")
         ]),
         html.Hr(),
 
@@ -67,7 +67,7 @@ app.layout = html.Div([
                      'width':'100%',
                      'display': 'inline-block'}
                      ),
-        html.H2(children='In this project, our goal was to predict the daily number of Covid-19 confirmed cases and deaths over a week. Compared to XGBoost, Random Forest model was our final choice considering it had lower RMSE. In this way, our final outputs were 14 Random Forest models, 7 for daily deaths forecast of future 7 days respectively and 7 for daily confirmed cases forecast of future 7 days. In addition, we validated our models by forecasting the daily death and daily cases from Nov 15 2021 to Nov 21 2021 and got acceptable results',
+        html.H2(children='In this project, our goal was to predict the daily number of Covid-19 confirmed cases and deaths over a week. Compared to XGBoost, Random Forest model was our final choice considering it had lower RMSE. In this way, our final outputs were 14 Random Forest models, 7 for daily deaths forecast of future 7 days respectively and 7 for daily confirmed cases forecast of future 7 days. In addition, we validated our models by forecasting the daily death and daily cases from Nov 15 2021 to Nov 21 2021 and got acceptable results.',
             style = {'font-family':'Helvetica',
                      'font-size': '15px',
                      'width':'100%',
@@ -81,7 +81,7 @@ app.layout = html.Div([
         ]),
 
         dbc.Row([ #subtitle
-        dbc.Col(html.H5(children='past four months dayly data', className="text-center"),
+        dbc.Col(html.H5(children='past seven months dayly data', className="text-center"),
                 className="mt-4")]),
         
         html.Div(children=[html.Div(children="Select States", className="menu-title"),
@@ -129,7 +129,7 @@ app.layout = html.Div([
         dbc.Row([ #subtitle
         dbc.Col(html.H5(children='XGBOOST and RandomForest Root Mean Square Error Comparision', className="text-center"),
                 className="mt-4")]),
-        html.Div(children=[html.Div(children="Select States", className="menu-title"),
+        html.Div(children=[html.Div(children="Select Daily/Death Data", className="menu-title"),
                                     dcc.Dropdown(id='rmse', value='Case', multi=False, 
                                     options=[{'label': x, 'value': x} for x in rmse["Status"].unique()])]),
         dcc.Graph(id='rmse_graph',
@@ -218,7 +218,7 @@ def draw(state):
     new = rmse[rmse["Status"] == state]
     fig = px.bar(new, x="Model", y="RMSE", 
                  color="Method", barmode="group")
-    fig.update_layout(title_text='XGBoost RMSE V.S. RandomForest RMSE over 7 Models')
+    fig.update_layout(title_text=f'XGBoost RMSE V.S. RandomForest RMSE over 7 Models for Daily{state} data')
     return fig
 
 @app.callback(Output(component_id='daily', component_property='figure'),
@@ -227,7 +227,7 @@ def draw(state):
 
 def draw(state, data):
     df = finaldata[finaldata["State"] == state]
-    fig = px.line(df, x="Date", y=data, title=f'{data} in {state} in the Past 4 Months')
+    fig = px.line(df, x="Date", y=data, title=f'{data} in {state} in the Past 7 Months')
     return fig
 
 
